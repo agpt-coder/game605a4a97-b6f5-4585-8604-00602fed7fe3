@@ -1,0 +1,131 @@
+// datasource db defines the database connection settings.
+// It is configured for PostgreSQL and uses an environment variable for the connection URL.
+// The 'extensions' feature enables the use of PostgreSQL-specific data types.
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+}
+
+// generator db configures Prisma Client settings.
+// It is set up to use Prisma Client Python with asyncio interface and specific features.
+generator db {
+  provider             = "prisma-client-py"
+  interface            = "asyncio"
+  recursive_type_depth = 5
+  previewFeatures      = ["postgresqlExtensions"]
+}
+
+model User {
+  id             String    @id @default(dbgenerated("gen_random_uuid()"))
+  email          String    @unique
+  hashedPassword String
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  role           Role      @default(PLAYER)
+  lastLogin      DateTime?
+
+  profiles         UserProfile[]
+  purchases        Purchase[]
+  gameSessions     GameSession[]
+  sentRequests     FriendRequest[] @relation("sentRequests")
+  receivedRequests FriendRequest[] @relation("receivedRequests")
+  friendships      Friendship[]    @relation("UserFriendships")
+  befriended       Friendship[]    @relation("UserBefriended")
+}
+
+model UserProfile {
+  id        String   @id @default(dbgenerated("gen_random_uuid()"))
+  userId    String
+  nickname  String
+  avatarUrl String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user       User              @relation(fields: [userId], references: [id])
+  characters CharacterConfig[]
+}
+
+model CharacterConfig {
+  id         String   @id @default(dbgenerated("gen_random_uuid()"))
+  profileId  String
+  appearance Json // JSON of appearance options
+  abilities  Json // JSON of abilities options
+  backstory  String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  userProfile UserProfile @relation(fields: [profileId], references: [id])
+}
+
+model Purchase {
+  id        String   @id @default(dbgenerated("gen_random_uuid()"))
+  userId    String
+  itemId    String
+  createdAt DateTime @default(now())
+  amount    Float
+
+  user User @relation(fields: [userId], references: [id])
+  item Item @relation(fields: [itemId], references: [id])
+}
+
+model Item {
+  id          String       @id @default(dbgenerated("gen_random_uuid()"))
+  name        String
+  description String
+  price       Float
+  category    ItemCategory
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  purchases Purchase[]
+}
+
+model FriendRequest {
+  id         String        @id @default(dbgenerated("gen_random_uuid()"))
+  senderId   String
+  receiverId String
+  status     RequestStatus @default(PENDING)
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+
+  sender   User @relation("sentRequests", fields: [senderId], references: [id])
+  receiver User @relation("receivedRequests", fields: [receiverId], references: [id])
+}
+
+model Friendship {
+  id        String   @id @default(dbgenerated("gen_random_uuid()"))
+  userId    String
+  friendId  String
+  createdAt DateTime @default(now())
+
+  user   User @relation("UserFriendships", fields: [userId], references: [id])
+  friend User @relation("UserBefriended", fields: [friendId], references: [id])
+}
+
+model GameSession {
+  id        String   @id @default(dbgenerated("gen_random_uuid()"))
+  userId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  gameData  Json // JSON for game session data like progress etc.
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+enum Role {
+  PLAYER
+  ADMIN
+  PREMIUM
+}
+
+enum ItemCategory {
+  COSMETIC
+  CONVENIENCE
+}
+
+enum RequestStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+

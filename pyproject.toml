@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "game"
+version = "0.1.0"
+description = "Based on the information gathered through our interactions, the vision for the game is detailed as follows: The game is conceptualized as a strategy genre experience, appealing greatly to those interested in critical thinking, planning, and overcoming challenges. Set within a rich medieval fantasy world, this setting allows for immersion in a realm of knights, dragons, and epic quests, providing an escape into a world filled with magic, lore, and historical aesthetics. The gameplay mechanics are envisioned to include both custom character creation and in-game purchases, enhancing player engagement through personalization and offering additional content for an enriched gaming experience. From a technical standpoint, the game will leverage a tech stack consisting of Python and FastAPI for efficient and fast backend services, PostgreSQL for reliable data storage and complex queries, and Prisma ORM for streamlined database operations, all prioritizing performance, security, and scalable architecture. Targeting a broad audience, the game aims to connect players of varying ages, fostering shared experiences among friends and family across generations via engaging gameplay that transcends typical generational divides. Focused on the mobile platform, the game capitalizes on accessibility and innovative gameplay mechanics specific to touch interfaces and mobile devices' portability. This comprehensive project embodies a strategic and immersive gaming experience that reaches a wide audience through its captivating medieval fantasy theme, innovative gameplay, and accessible mobile platform."
+authors = ["AutoGPT <info@agpt.co>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = ">=3.11"
+bcrypt = "^3.2.0"
+fastapi = "^0.78.0"
+prisma = "*"
+pydantic = "*"
+uvicorn = "*"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
